@@ -97,6 +97,8 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
             $wordcounts = $this->get_wordcounts();
             if ( count( $wordcounts ) > 0 )
             {
+                // todo don't bake this text, place in options
+                echo '<aside class="widget"><h1 class="widget-title">Works in Progress</h1>';
                 foreach ( $wordcounts as $wc )
                 {
                     $bar_width = round( 100.0 * floatval( $wc[ 'count' ] ) / floatval( $wc[ 'max' ] ) );
@@ -109,14 +111,16 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
                         $bar_width = 0;
                     }
 
-                    echo '<aside class="widget"><h1 class="widget-title">' . $wc[ 'name' ] . '</h1>';
+                    // todo add colours to plugin options, don't bake them in
+                    // improve style across themes
+                    echo '<span class="widget_title">' . $wc[ 'name' ] . '</span>';
                     echo '<div style="width:100%;height:15px;background:#FFFFFF;border:1px solid #000000;">';
                     echo '<div style="width:' . $bar_width .
                          '%;height:15px;background:#1982d1;font-size:8px;line-height:8px;">';
                     echo '<br></div></div>';
-                    echo '<span>' . $wc[ 'count' ] . ' / ' . $wc[ 'max' ] . '</span>';
-                    echo '</aside>';
+                    echo '<p>' . $wc[ 'count' ] . ' / ' . $wc[ 'max' ] . '</p>';
                 }
+                echo '</aside>';
             }
         }
 
