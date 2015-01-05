@@ -9,28 +9,9 @@
  * License: GPL2
  */
 
-/*  Copyright 2014 Scott Grant (email: scott@scootah.com)
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
-    published by the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-if ( ! class_exists( 'WP_Author_Wordcount' ) )
-{
-    class WP_Author_Wordcount extends WP_Widget
-    {
-        public function __construct()
-        {
+if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
+    class WP_Author_Wordcount extends WP_Widget {
+        public function __construct() {
             parent::__construct( false, 'Author Wordcount' );
 
             add_action( 'init', array( $this, 'load_plugin_textdomain') );
@@ -38,8 +19,7 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
             add_action( 'admin_menu', array( $this, 'add_menu' ) );
         }
 
-        function load_plugin_textdomain()
-        {
+        function load_plugin_textdomain() {
             load_plugin_textdomain(
                 'author_wordcount',
                 FALSE,
@@ -47,16 +27,14 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
             );
         }
 
-        public function admin_init()
-        {
+        public function admin_init() {
             wp_register_style(
                 'author_wordcount_stylesheet',
                 plugins_url( 'style.css', __FILE__ )
             );
         }
 
-        public static function activate()
-        {
+        public static function activate() {
             global $wpdb;
 
             $table_name = $wpdb->prefix . 'authorwordcount';
@@ -73,12 +51,7 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
             dbDelta( $sql );
         }
 
-        public static function deactivate()
-        {
-        }
-
-        public function add_menu()
-        {
+        public function add_menu() {
             $page = add_options_page(
                 'Author Wordcount Settings',
                 'Author Wordcount',
@@ -92,53 +65,55 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
             );
         }
 
-        public function widget( $args, $instance )
-        {
+        public function widget( $args, $instance ) {
             $wordcounts = $this->get_wordcounts();
-            if ( count( $wordcounts ) > 0 )
-            {
+            if ( count( $wordcounts ) > 0 ) {
                 // todo don't bake this text, place in options
-                echo '<aside class="widget"><h1 class="widget-title">Works in Progress</h1>';
-                foreach ( $wordcounts as $wc )
-                {
-                    $bar_width = round( 100.0 * floatval( $wc[ 'count' ] ) / floatval( $wc[ 'max' ] ) );
-                    if ( $bar_width > 100 )
-                    {
+                echo( '<aside class="widget"><h1 class="widget-title">' .
+                      'Works in Progress</h1>' );
+                foreach ( $wordcounts as $wc ) {
+                    $bar_width = round( 100.0 * floatval( $wc[ 'count' ] ) /
+                        floatval( $wc[ 'max' ] ) );
+
+                    if ( $bar_width > 100 ) {
                         $bar_width = 100;
-                    }
-                    elseif ( $bar_width < 0 )
-                    {
+                    } elseif ( $bar_width < 0 ) {
                         $bar_width = 0;
                     }
 
-                    // todo add colours to plugin options, don't bake them in
+                    // todo add colours to plugin options, don't bake them in.
                     // improve style across themes
-                    echo '<span class="widget_title">' . $wc[ 'name' ] . '</span>';
-                    echo '<div style="width:100%;height:15px;background:#FFFFFF;border:1px solid #000000;">';
-                    echo '<div style="width:' . $bar_width .
-                         '%;height:15px;background:#1982d1;font-size:8px;line-height:8px;">';
-                    echo '<br></div></div>';
-                    echo '<p>' . $wc[ 'count' ] . ' / ' . $wc[ 'max' ] . '</p>';
+                    echo( '<span class="widget_title">' . $wc[ 'name' ] .
+                          '</span>' );
+                    echo( '<div style="width:100%;height:15px;background:' .
+                          '#FFFFFF;border:1px solid #000000;">' );
+                    echo( '<div style="width:' . $bar_width .
+                         '%;height:15px;background:#1982d1;font-size:8px;' .
+                         'line-height:8px;">' );
+                    echo( '<br></div></div>' );
+                    echo( '<p>' . $wc[ 'count' ] . ' / ' . $wc[ 'max' ] .
+                          '</p>' );
+//                    echo '<p>' . wp_create_nonce() . ',',
+//                         wp_create_nonce() . '</p>';
                 }
                 echo '</aside>';
             }
         }
 
-        public function plugin_admin_styles()
-        {
+        public function plugin_admin_styles() {
             wp_enqueue_style( 'author_wordcount_stylesheet' );
         }
 
-        public function plugin_settings_page()
-        {
-            if ( ! current_user_can( 'manage_options' ) )
-            {
-                wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+        public function plugin_settings_page() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_die( __( 'You do not have sufficient permissions ' .
+                            'to access this page.' ) );
             }
 
             // TODO nonce
-            if ( ( isset( $_POST[ 'wordcount_add' ] ) ) && ( strlen( $_POST[ 'wordcount_name' ] ) > 0 ) )
-            {
+            if ( ( isset( $_POST[ 'wordcount_add' ] ) ) &&
+                 ( strlen( $_POST[ 'wordcount_name' ] ) > 0 ) ) {
+
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'authorwordcount';
@@ -151,17 +126,18 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
                     ),
                     array( '%s', '%d', '%d' )
                 );
-            }
-            elseif ( isset( $_POST[ 'wordcount_delete' ] ) )
-            {
+
+            } elseif ( isset( $_POST[ 'wordcount_delete' ] ) ) {
+
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'authorwordcount';
 
-                $wpdb->delete( $table_name, array( 'id' => intval( $_POST[ 'wordcount_id' ] ) ) );
-            }
-            elseif ( isset( $_POST[ 'wordcount_update' ] ) )
-            {
+                $wpdb->delete( $table_name,
+                    array( 'id' => intval( $_POST[ 'wordcount_id' ] ) ) );
+
+            } elseif ( isset( $_POST[ 'wordcount_update' ] ) ) {
+
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'authorwordcount';
@@ -176,51 +152,89 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
                     array( '%s', '%d', '%d' ),
                     array( '%d' )
                 );
+
             }
-
-            echo( '<div class="wrap"><h2>Author Wordcount</h2>' );
-
-            echo( '<hr><h3>New Entry</h3>' );
-            echo( '<form method="post" action="options-general.php?page=wp_author_wordcount">' );
-            echo( '<table class="form-table">' . settings_fields( 'debugbarextender_settings' ) );
-            echo( '<tr valign="top"><th scope="row">Name</th><td><input name="wordcount_name" id="wordcount_name" value="" class="regular-text" type="text"></td></tr>' );
-            echo( '<tr valign="top"><th scope="row">Current Wordcount</th><td><input name="wordcount_count" id="wordcount_count" value="" class="regular-text" type="text"></td></tr>' );
-            echo( '<tr valign="top"><th scope="row">Expected Wordcount</th><td><input name="wordcount_max" id="wordcount_max" value="" class="regular-text" type="text"></td></tr>' );
-            echo( '</table><p class="submit"><input name="wordcount_add" id="wordcount_add" class="button button-primary" value="Add Wordcount" type="submit"></p></form>' );
-
+?>
+<div class="wrap">
+  <h2>Author Wordcount</h2>
+  <hr>
+  <h3>New Entry</h3>
+  <form method="post" action="options-general.php?page=wp_author_wordcount">
+  <table class="form-table">
+    <?php echo( settings_fields( 'debugbarextender_settings' ) ); ?>
+    <tr valign="top">
+      <th scope="row">Name</th>
+      <td><input name="wordcount_name" id="wordcount_name" value=""
+                 class="regular-text" type="text">
+      </td>
+    </tr>
+    <tr valign="top">
+      <th scope="row">Current Wordcount</th>
+      <td><input name="wordcount_count" id="wordcount_count" value=""
+                 class="regular-text" type="text">
+      </td>
+    </tr>
+    <tr valign="top">
+      <th scope="row">Expected Wordcount</th>
+      <td><input name="wordcount_max" id="wordcount_max" value=""
+                 class="regular-text" type="text">
+      </td>
+    </tr>
+  </table>
+  <p class="submit">
+    <input name="wordcount_add" id="wordcount_add"
+           class="button button-primary" value="Add Wordcount" type="submit">
+  </p>
+  </form>
+<?php
             $wordcounts = $this->get_wordcounts();
-            if ( count( $wordcounts ) > 0 )
-            {
-                echo( '<hr><div class="table"><div class="tr"><span class="td bold">Name</span><span class="td bold">Current Wordcount</span><span class="td bold">Expected Wordcount</span><span class="td bold">Options</span></div>' );
-
-                foreach ( $wordcounts as $wc )
-                {
-                    echo( '<form class="tr" method="post" action="options-general.php?page=wp_author_wordcount"><input type="hidden" name="wordcount_id" value="' . $wc[ 'id' ] . '">' );
-                    echo( '<span class="td"><input name="wordcount_name" id="wordcount_name" value="' . $wc[ 'name' ] . '" type="text"></span>' .
-                          '<span class="td"><input name="wordcount_count" id="wordcount_count" value="' . $wc[ 'count' ] . '" type="text"></span>' .
-                          '<span class="td"><input name="wordcount_max" id="wordcount_max" value="' . $wc[ 'max' ] . '" type="text"></span>' );
-                    echo( '<span class="td">' );
-                    echo( '<input name="wordcount_update" id="wordcount_update" class="button button-primary" value="Update" type="submit">' );
-                    echo( '<input name="wordcount_delete" id="wordcount_delete" class="button button-primary" value="Delete" type="submit">' );
-                    echo( '</span></form>' );
+            if ( count( $wordcounts ) > 0 ) {
+?>
+  <hr>
+  <div class="table">
+    <div class="tr">
+      <span class="td bold">Name</span>
+      <span class="td bold">Current Wordcount</span>
+      <span class="td bold">Expected Wordcount</span>
+      <span class="td bold">Options</span>
+    </div>
+<?php
+                foreach ( $wordcounts as $wc ) {
+?>
+    <form class="tr" method="post"
+          action="options-general.php?page=wp_author_wordcount">
+      <input type="hidden" name="wordcount_id" value="<?php
+          echo( $wc[ 'id' ] ); ?>">
+      <span class="td"><input name="wordcount_name" id="wordcount_name"
+          value="<?php echo( $wc[ 'name' ] ); ?>" type="text"></span>
+      <span class="td"><input name="wordcount_count" id="wordcount_count"
+          value="<?php echo( $wc[ 'count' ] ); ?>" type="text"></span>
+      <span class="td"><input name="wordcount_max" id="wordcount_max"
+          value="<?php echo( $wc[ 'max' ] ); ?>" type="text"></span>
+      <span class="td">
+        <input name="wordcount_update" id="wordcount_update"
+               class="button button-primary" value="Update" type="submit">
+        <input name="wordcount_delete" id="wordcount_delete"
+               class="button button-primary" value="Delete" type="submit">
+      </span>
+    </form>
+<?php
                 }
 
                 echo( '</div>' );
             }
-            echo( '<hr><p>Brought to you by <a href="http://scotchfield.com" target="_blank">Alexander Scotchfield</a>.</p>' );
             echo( '</div>' );
         }
 
-        public function get_wordcounts()
-        {
+        public function get_wordcounts() {
             global $wpdb;
 
             $table_name = $wpdb->prefix . 'authorwordcount';
 
             $wordcounts = array();
-            $rows = $wpdb->get_results( "SELECT id, name, word_count, word_max FROM $table_name" );
-            foreach ( $rows as $row )
-            {
+            $rows = $wpdb->get_results(
+                "SELECT id, name, word_count, word_max FROM $table_name" );
+            foreach ( $rows as $row ) {
                 $wordcounts[ $row->id ] = array(
                     'id' => $row->id,
                     'name' => $row->name,
@@ -233,14 +247,6 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) )
         }
     }
 }
-
-/*if ( class_exists( 'WP_Author_Wordcount' ) )
-{
-    register_activation_hook( __FILE__, array( 'WP_Author_Wordcount', 'activate' ) );
-    register_deactivation_hook( __FILE__, array( 'WP_Author_Wordcount', 'deactivate' ) );
-
-    $wp_author_wordcount = new WP_Author_Wordcount();
-}*/
 
 function register_author_wordcount() {
     register_widget( 'WP_Author_Wordcount' );
