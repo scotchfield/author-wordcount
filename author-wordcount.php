@@ -3,7 +3,7 @@
  * Plugin Name: Author Wordcount
  * Plugin URI: http://scotchfield.com/author-wordcount-plugin
  * Description: Allows authors to show word counts for works in progress.
- * Version: 0.1
+ * Version: 0.2
  * Author: Scott Grant
  * Author URI: http://scotchfield.com
  * License: GPL2
@@ -17,6 +17,11 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
             add_action( 'init', array( $this, 'load_plugin_textdomain') );
             add_action( 'admin_init', array( $this, 'admin_init' ) );
             add_action( 'admin_menu', array( $this, 'add_menu' ) );
+
+            $this->word_obj = get_option( 'author_wordcount' );
+            if ( ! $this->word_obj ) {
+                $this->word_obj = array();
+            }
         }
 
         function load_plugin_textdomain() {
@@ -34,23 +39,6 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
             );
         }
 
-        public static function activate() {
-            global $wpdb;
-
-            $table_name = $wpdb->prefix . 'authorwordcount';
-
-            $sql = "CREATE TABLE $table_name (
-                id MEDIUMINT NOT NULL AUTO_INCREMENT,
-                name TINYTEXT NOT NULL,
-                word_count MEDIUMINT NOT NULL,
-                word_max MEDIUMINT NOT NULL,
-                UNIQUE KEY id (id)
-            );";
-
-            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-            dbDelta( $sql );
-        }
-
         public function add_menu() {
             $page = add_options_page(
                 'Author Wordcount Settings',
@@ -66,14 +54,13 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
         }
 
         public function widget( $args, $instance ) {
-            $wordcounts = $this->get_wordcounts();
-            if ( count( $wordcounts ) > 0 ) {
+            if ( count( $this->word_obj ) > 0 ) {
                 // todo don't bake this text, place in options
                 echo( '<aside class="widget"><h1 class="widget-title">' .
                       'Works in Progress</h1>' );
-                foreach ( $wordcounts as $wc ) {
-                    $bar_width = round( 100.0 * floatval( $wc[ 'count' ] ) /
-                        floatval( $wc[ 'max' ] ) );
+                foreach ( $this->word_obj as $k => $v ) {
+                    $bar_width = round( 100.0 * floatval( $v[ 'count' ] ) /
+                        floatval( $v[ 'max' ] ) );
 
                     if ( $bar_width > 100 ) {
                         $bar_width = 100;
@@ -83,15 +70,14 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
 
                     // todo add colours to plugin options, don't bake them in.
                     // improve style across themes
-                    echo( '<span class="widget_title">' . $wc[ 'name' ] .
-                          '</span>' );
+                    echo( '<span class="widget_title">' . $k . '</span>' );
                     echo( '<div style="width:100%;height:15px;background:' .
                           '#FFFFFF;border:1px solid #000000;">' );
                     echo( '<div style="width:' . $bar_width .
                          '%;height:15px;background:#1982d1;font-size:8px;' .
                          'line-height:8px;">' );
                     echo( '<br></div></div>' );
-                    echo( '<p>' . $wc[ 'count' ] . ' / ' . $wc[ 'max' ] .
+                    echo( '<p>' . $v[ 'count' ] . ' / ' . $v[ 'max' ] .
                           '</p>' );
 //                    echo '<p>' . wp_create_nonce() . ',',
 //                         wp_create_nonce() . '</p>';
@@ -114,44 +100,27 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
             if ( ( isset( $_POST[ 'wordcount_add' ] ) ) &&
                  ( strlen( $_POST[ 'wordcount_name' ] ) > 0 ) ) {
 
-                global $wpdb;
-
-                $table_name = $wpdb->prefix . 'authorwordcount';
-
-                $wpdb->insert( $table_name,
-                    array(
-                        'name' => $_POST[ 'wordcount_name' ],
-                        'word_count' => $_POST[ 'wordcount_count' ],
-                        'word_max' => $_POST[ 'wordcount_max' ],
-                    ),
-                    array( '%s', '%d', '%d' )
+                $this->word_obj[ $_POST[ 'wordcount_name' ] ] = array(
+                    'count' => $_POST[ 'wordcount_count' ],
+                    'max' => $_POST[ 'wordcount_max' ]
                 );
+
+                update_option( 'author_wordcount', $this->word_obj );
 
             } elseif ( isset( $_POST[ 'wordcount_delete' ] ) ) {
 
-                global $wpdb;
+                unset( $this->word_obj[ $_POST[ 'wordcount_name' ] ] );
 
-                $table_name = $wpdb->prefix . 'authorwordcount';
-
-                $wpdb->delete( $table_name,
-                    array( 'id' => intval( $_POST[ 'wordcount_id' ] ) ) );
+                update_option( 'author_wordcount', $this->word_obj );
 
             } elseif ( isset( $_POST[ 'wordcount_update' ] ) ) {
 
-                global $wpdb;
-
-                $table_name = $wpdb->prefix . 'authorwordcount';
-
-                $wpdb->update( $table_name,
-                    array(
-                        'name' => $_POST[ 'wordcount_name' ],
-                        'word_count' => $_POST[ 'wordcount_count' ],
-                        'word_max' => $_POST[ 'wordcount_max' ]
-                    ),
-                    array( 'id' => $_POST[ 'wordcount_id' ] ),
-                    array( '%s', '%d', '%d' ),
-                    array( '%d' )
+                $this->word_obj[ $_POST[ 'wordcount_name' ] ] = array(
+                    'count' => $_POST[ 'wordcount_count' ],
+                    'max' => $_POST[ 'wordcount_max' ]
                 );
+
+                update_option( 'author_wordcount', $this->word_obj );
 
             }
 ?>
@@ -187,8 +156,7 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
   </p>
   </form>
 <?php
-            $wordcounts = $this->get_wordcounts();
-            if ( count( $wordcounts ) > 0 ) {
+            if ( count( $this->word_obj ) > 0 ) {
 ?>
   <hr>
   <div class="table">
@@ -199,18 +167,16 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
       <span class="td bold">Options</span>
     </div>
 <?php
-                foreach ( $wordcounts as $wc ) {
+                foreach ( $this->word_obj as $k => $v ) {
 ?>
     <form class="tr" method="post"
           action="options-general.php?page=wp_author_wordcount">
-      <input type="hidden" name="wordcount_id" value="<?php
-          echo( $wc[ 'id' ] ); ?>">
       <span class="td"><input name="wordcount_name" id="wordcount_name"
-          value="<?php echo( $wc[ 'name' ] ); ?>" type="text"></span>
+          value="<?php echo( $k ); ?>" type="text"></span>
       <span class="td"><input name="wordcount_count" id="wordcount_count"
-          value="<?php echo( $wc[ 'count' ] ); ?>" type="text"></span>
+          value="<?php echo( $v[ 'count' ] ); ?>" type="text"></span>
       <span class="td"><input name="wordcount_max" id="wordcount_max"
-          value="<?php echo( $wc[ 'max' ] ); ?>" type="text"></span>
+          value="<?php echo( $v[ 'max' ] ); ?>" type="text"></span>
       <span class="td">
         <input name="wordcount_update" id="wordcount_update"
                class="button button-primary" value="Update" type="submit">
@@ -226,25 +192,6 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
             echo( '</div>' );
         }
 
-        public function get_wordcounts() {
-            global $wpdb;
-
-            $table_name = $wpdb->prefix . 'authorwordcount';
-
-            $wordcounts = array();
-            $rows = $wpdb->get_results(
-                "SELECT id, name, word_count, word_max FROM $table_name" );
-            foreach ( $rows as $row ) {
-                $wordcounts[ $row->id ] = array(
-                    'id' => $row->id,
-                    'name' => $row->name,
-                    'count' => $row->word_count,
-                    'max' => $row->word_max
-                );
-            }
-
-            return $wordcounts;
-        }
     }
 }
 
