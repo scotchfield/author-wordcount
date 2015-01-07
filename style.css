@@ -1,20 +1,28 @@
-div.table
-{
+div.table {
     display: table;
     width: 100%;
 }
-div.tr, form.tr
-{
+div.tr, form.tr {
     display: table-row;
 }
-span.td
-{
+div.author_wordcount_element {
+    width: 100%;
+    height: 15px;
+    background: #FFFFFF;
+    border: 1px solid #000000;
+}
+div.author_wordcount_bar {
+    height: 15px;
+    background: #1982d1;
+    font-size: 8px;
+    line-height: 8px;
+}
+span.td {
     display: table-cell;
     padding: 8px;
     text-align: center;
     vertical-align: middle;
 }
-span.bold
-{
+span.bold {
     font-weight: bold;
 }

@@ -14,9 +14,14 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
         public function __construct() {
             parent::__construct( false, 'Author Wordcount' );
 
-            add_action( 'init', array( $this, 'load_plugin_textdomain') );
-            add_action( 'admin_init', array( $this, 'admin_init' ) );
+            add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
             add_action( 'admin_menu', array( $this, 'add_menu' ) );
+
+            wp_register_style(
+                'author_wordcount_stylesheet',
+                plugins_url( 'style.css', __FILE__ )
+            );
+            wp_enqueue_style( 'author_wordcount_stylesheet' );
 
             $this->word_obj = get_option( 'author_wordcount' );
             if ( ! $this->word_obj ) {
@@ -32,13 +37,6 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
             );
         }
 
-        public function admin_init() {
-            wp_register_style(
-                'author_wordcount_stylesheet',
-                plugins_url( 'style.css', __FILE__ )
-            );
-        }
-
         public function add_menu() {
             $page = add_options_page(
                 'Author Wordcount Settings',
@@ -46,10 +44,6 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
                 'manage_options',
                 'wp_author_wordcount',
                 array( $this, 'plugin_settings_page' )
-            );
-            add_action(
-                'admin_print_styles-' . $page,
-                array( $this, 'plugin_admin_styles' )
             );
         }
 
@@ -67,27 +61,19 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
                     } elseif ( $bar_width < 0 ) {
                         $bar_width = 0;
                     }
-
-                    // todo add colours to plugin options, don't bake them in.
-                    // improve style across themes
-                    echo( '<span class="widget_title">' . $k . '</span>' );
-                    echo( '<div style="width:100%;height:15px;background:' .
-                          '#FFFFFF;border:1px solid #000000;">' );
-                    echo( '<div style="width:' . $bar_width .
-                         '%;height:15px;background:#1982d1;font-size:8px;' .
-                         'line-height:8px;">' );
-                    echo( '<br></div></div>' );
-                    echo( '<p>' . $v[ 'count' ] . ' / ' . $v[ 'max' ] .
-                          '</p>' );
-//                    echo '<p>' . wp_create_nonce() . ',',
-//                         wp_create_nonce() . '</p>';
+?>
+<span class="widget_title"><?php echo( $k ); ?></span>
+<div class="author_wordcount_element">
+  <div class="author_wordcount_bar" style="width:<?php echo( $bar_width ); ?>%;">
+    <br>
+  </div>
+</div>
+<p><?php echo( $v[ 'count' ] ); ?> / <?php echo( $v[ 'max' ] ); ?></p>
+<?php
+//                    echo '<p>' . wp_create_nonce() . '</p>' );
                 }
                 echo '</aside>';
             }
-        }
-
-        public function plugin_admin_styles() {
-            wp_enqueue_style( 'author_wordcount_stylesheet' );
         }
 
         public function plugin_settings_page() {
