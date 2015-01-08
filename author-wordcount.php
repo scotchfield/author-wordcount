@@ -3,7 +3,7 @@
  * Plugin Name: Author Wordcount
  * Plugin URI: http://scotchfield.com/author-wordcount-plugin
  * Description: Allows authors to show word counts for works in progress.
- * Version: 0.2
+ * Version: 1.0
  * Author: Scott Grant
  * Author URI: http://scotchfield.com
  * License: GPL2
@@ -48,6 +48,7 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
         }
 
         public function widget( $args, $instance ) {
+
             if ( count( $this->word_obj ) > 0 ) {
                 // todo don't bake this text, place in options
                 echo( '<aside class="widget"><h1 class="widget-title">' .
@@ -64,16 +65,17 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
 ?>
 <span class="widget_title"><?php echo( $k ); ?></span>
 <div class="author_wordcount_element">
-  <div class="author_wordcount_bar" style="width:<?php echo( $bar_width ); ?>%;">
+  <div class="author_wordcount_bar" style="width:<?php
+      echo( $bar_width ); ?>%;">
     <br>
   </div>
 </div>
 <p><?php echo( $v[ 'count' ] ); ?> / <?php echo( $v[ 'max' ] ); ?></p>
 <?php
-//                    echo '<p>' . wp_create_nonce() . '</p>' );
                 }
                 echo '</aside>';
             }
+
         }
 
         public function plugin_settings_page() {
@@ -82,31 +84,39 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
                             'to access this page.' ) );
             }
 
-            // TODO nonce
-            if ( ( isset( $_POST[ 'wordcount_add' ] ) ) &&
-                 ( strlen( $_POST[ 'wordcount_name' ] ) > 0 ) ) {
+            if ( isset( $_POST[ 'wordcount_name' ] ) ) {
 
-                $this->word_obj[ $_POST[ 'wordcount_name' ] ] = array(
-                    'count' => $_POST[ 'wordcount_count' ],
-                    'max' => $_POST[ 'wordcount_max' ]
-                );
+                if ( isset( $_POST[ 'wordcount_add' ] ) &&
+                     wp_verify_nonce( $_POST[ 'wp_nonce' ],
+                                      'author-create' ) ) {
 
-                update_option( 'author_wordcount', $this->word_obj );
+                    $this->word_obj[ $_POST[ 'wordcount_name' ] ] = array(
+                        'count' => $_POST[ 'wordcount_count' ],
+                        'max' => $_POST[ 'wordcount_max' ]
+                    );
 
-            } elseif ( isset( $_POST[ 'wordcount_delete' ] ) ) {
+                    update_option( 'author_wordcount', $this->word_obj );
 
-                unset( $this->word_obj[ $_POST[ 'wordcount_name' ] ] );
+                } elseif ( isset( $_POST[ 'wordcount_delete' ] ) &&
+                           wp_verify_nonce( $_POST[ 'wp_nonce' ],
+                               'update-' . $_POST[ 'wordcount_name' ] ) ) {
 
-                update_option( 'author_wordcount', $this->word_obj );
+                    unset( $this->word_obj[ $_POST[ 'wordcount_name' ] ] );
 
-            } elseif ( isset( $_POST[ 'wordcount_update' ] ) ) {
+                    update_option( 'author_wordcount', $this->word_obj );
 
-                $this->word_obj[ $_POST[ 'wordcount_name' ] ] = array(
-                    'count' => $_POST[ 'wordcount_count' ],
-                    'max' => $_POST[ 'wordcount_max' ]
-                );
+                } elseif ( isset( $_POST[ 'wordcount_update' ] ) &&
+                           wp_verify_nonce( $_POST[ 'wp_nonce' ],
+                               'update-' . $_POST[ 'wordcount_name' ] ) ) {
 
-                update_option( 'author_wordcount', $this->word_obj );
+                    $this->word_obj[ $_POST[ 'wordcount_name' ] ] = array(
+                        'count' => $_POST[ 'wordcount_count' ],
+                        'max' => $_POST[ 'wordcount_max' ]
+                    );
+
+                    update_option( 'author_wordcount', $this->word_obj );
+
+                }
 
             }
 ?>
@@ -115,8 +125,9 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
   <hr>
   <h3>New Entry</h3>
   <form method="post" action="options-general.php?page=wp_author_wordcount">
+    <input type="hidden" name="wp_nonce" value="<?php
+        echo( wp_create_nonce( 'author-create' ) ); ?>">
   <table class="form-table">
-    <?php echo( settings_fields( 'debugbarextender_settings' ) ); ?>
     <tr valign="top">
       <th scope="row">Name</th>
       <td><input name="wordcount_name" id="wordcount_name" value=""
@@ -157,6 +168,8 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
 ?>
     <form class="tr" method="post"
           action="options-general.php?page=wp_author_wordcount">
+      <input type="hidden" name="wp_nonce" value="<?php
+          echo( wp_create_nonce( 'update-' . $k ) ); ?>">
       <span class="td"><input name="wordcount_name" id="wordcount_name"
           value="<?php echo( $k ); ?>" type="text"></span>
       <span class="td"><input name="wordcount_count" id="wordcount_count"
