@@ -131,19 +131,19 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
     <tr valign="top">
       <th scope="row">Name</th>
       <td><input name="wordcount_name" id="wordcount_name" value=""
-                 class="regular-text" type="text">
+                 class="regular-text" type="text" placeholder="The Hobbit">
       </td>
     </tr>
     <tr valign="top">
       <th scope="row">Current Wordcount</th>
       <td><input name="wordcount_count" id="wordcount_count" value=""
-                 class="regular-text" type="text">
+                 class="regular-text" type="text" placeholder="12345">
       </td>
     </tr>
     <tr valign="top">
       <th scope="row">Expected Wordcount</th>
       <td><input name="wordcount_max" id="wordcount_max" value=""
-                 class="regular-text" type="text">
+                 class="regular-text" type="text" placeholder="50000">
       </td>
     </tr>
   </table>
@@ -189,6 +189,14 @@ if ( ! class_exists( 'WP_Author_Wordcount' ) ) {
                 echo( '</div>' );
             }
             echo( '</div>' );
+?>
+<hr>
+<div class="wrap">
+  <h4>Please note that wordcounts will not show unless the widget has
+    been <a href="<?php echo( admin_url() ); ?>widgets.php">added to
+    a sidebar</a> or other location.</h4>
+</div>
+<?php
         }
 
     }
