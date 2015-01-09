@@ -24,8 +24,8 @@ The style is based on an old component that used to sit on the sidebar of
 
 == Installation ==
 
-Place all the files in a directory inside of wp-content (for example,
-author_wordcount). Activate the plugin, and make sure that you add the
+Place all the files in a directory inside of wp-content/plugins (for example,
+author-wordcount). Activate the plugin, and make sure that you add the
 widget to a sidebar.
 
 You can find the admin page under Settings, titled Author Wordcount.
