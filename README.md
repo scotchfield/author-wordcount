@@ -13,6 +13,8 @@ The style is based on an old component that used to sit on the sidebar of
 
 ## Installation
 
+https://wordpress.org/plugins/author-wordcount/
+
 Place all the files in a directory inside of wp-content/plugins (for example,
 author-wordcount). Activate the plugin, and make sure that you add the
 widget to a sidebar.
