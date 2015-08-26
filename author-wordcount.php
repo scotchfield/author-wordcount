@@ -14,7 +14,16 @@ class WP_Author_Wordcount extends WP_Widget {
 	public function __construct() {
 		parent::__construct( false, 'Author Wordcount' );
 
-		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'init', array( $this, 'init' ) );
+	}
+
+	public function init() {
+		load_plugin_textdomain(
+			'author_wordcount',
+			FALSE,
+			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
+		);
+
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 
 		wp_register_style(
@@ -27,14 +36,6 @@ class WP_Author_Wordcount extends WP_Widget {
 		if ( ! $this->word_obj ) {
 			$this->word_obj = array();
 		}
-	}
-
-	function load_plugin_textdomain() {
-		load_plugin_textdomain(
-			'author_wordcount',
-			FALSE,
-			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
-		);
 	}
 
 	public function add_menu() {
