@@ -1,6 +1,8 @@
 Author Wordcount
 ================
 
+[![Build status](https://api.travis-ci.org/scotchfield/author-wordcount.svg?branch=master)](https://travis-ci.org/scotchfield/author-wordcount)
+
 Author Wordcount is a simple tool that allows you to enter the title of
 a work-in-progress (I'm looking at you, NaNoWriMo draft), a current word
 count, and a goal word count. These counters can be updated when you have
