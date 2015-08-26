@@ -15,6 +15,11 @@ class WP_Author_Wordcount extends WP_Widget {
 		parent::__construct( false, 'Author Wordcount' );
 
 		add_action( 'init', array( $this, 'init' ) );
+
+		$this->word_obj = get_option( 'author_wordcount' );
+		if ( ! $this->word_obj ) {
+			$this->word_obj = array();
+		}
 	}
 
 	public function init() {
@@ -31,11 +36,6 @@ class WP_Author_Wordcount extends WP_Widget {
 			plugins_url( 'style.css', __FILE__ )
 		);
 		wp_enqueue_style( 'author_wordcount_stylesheet' );
-
-		$this->word_obj = get_option( 'author_wordcount' );
-		if ( ! $this->word_obj ) {
-			$this->word_obj = array();
-		}
 	}
 
 	public function add_menu() {

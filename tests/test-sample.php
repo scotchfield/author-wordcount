@@ -16,8 +16,5 @@ class Test_AuthorWordcount extends WP_UnitTestCase {
 		$this->assertEquals( array(), $class->word_obj );
 	}
 
-
-
-
 }
 
