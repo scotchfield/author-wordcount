@@ -1,16 +1,19 @@
+sudo: false
+
 language: php
 
 php:
-    - 5.3
-    - 5.4
+  - nightly
+  - 5.6
+  - 5.5
+  - 5.4
+  - 5.3
 
 env:
-    - WP_VERSION=latest WP_MULTISITE=0
-    - WP_VERSION=latest WP_MULTISITE=1
-    - WP_VERSION=3.8 WP_MULTISITE=0
-    - WP_VERSION=3.8 WP_MULTISITE=1
+  - WP_PROJECT_TYPE=plugin WP_VERSION=latest WP_MULTISITE=0 WP_TEST_URL=http://localhost:12000 WP_TEST_USER=test WP_TEST_USER_PASS=test
 
 before_script:
-    - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION 
+  - git clone https://github.com/scotchfield/author-wordcount wp-tests
+  - bash wp-tests/bin/install-wp-tests.sh test root '' localhost $WP_VERSION
 
 script: phpunit
